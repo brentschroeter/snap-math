@@ -8,6 +8,7 @@ Extension of Snap.svg for easy construction of simple graphs. Provides construct
     var pt = plotPt(p, a, 5, 5);
     pt.el.attr({fill: '#bbaa55', strokeWidth: 2});
     pt.el.drag(null, null, function() {
+        // dragEnd
         pt.graphSnap()
     });
     pt.animZoom();
