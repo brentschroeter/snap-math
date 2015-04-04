@@ -1,5 +1,5 @@
 // Extension of Snap.svg for easy construction of simple graphs.
-// By Brent Schroeter, University of Washington
+// Copyright (c) 2015 Brent Schroeter. All rights reserved.
 
 function plotAxes(p, xMin, xMax, yMin, yMax, grid) {
     /* Draws a set of 2d axes on p. */
