@@ -52,30 +52,36 @@ function plotAxes(p, xMin, xMax, yMin, yMax, grid) {
         return p.path(pathStr);
     }
     var graphCoords = function(x, y) {
+        /* Converts pixel coordinates to graph coordinates. */
         return [x * d / w + xMin, -y * r / h + yMax];
     };
     return {pxCoords: pxCoords, plotFunc: plotFunc, graphCoords: graphCoords};
 }
 
 function plotPt(p, axes, x, y) {
+    /* Draws a circular point on p. */
     var r = 5;
     var coords = axes.pxCoords(x, y);
     var pt = p.circle(coords[0], coords[1], 5)
         .attr({strokeWidth: 0, fill: '#33f'});
     var setR = function(newR) {
+        /* Sets the default radius of the point. Use instead of el.attr({r: }), especially if you plan to call animZoom(). */
         r = newR;
         pt.attr({r: r});
     };
     var animZoom = function() {
+        /* Causes a zoom in-zoom out animation of the point. */
         pt.animate({r: r * 1.5}, 150, null, function() {
             this.animate({r: r}, 150);
         });
     };
     var graphCoords = function() {
+        /* Returns the graph coordinates of the point. */
         var b = pt.getBBox();
         return axes.graphCoords(b.cx, b.cy);
     };
     var graphSnap = function(x, y, complete) {
+        /* Snaps the point to the nearest integer point or to the given graph coordinates. */
         var b = pt.getBBox();
         if (typeof x === 'undefined' || x === null) x = Math.round(axes.graphCoords(b.cx, b.cy)[0]);
         if (typeof y === 'undefined' || y === null) y = Math.round(axes.graphCoords(b.cx, b.cy)[1]);
@@ -88,19 +94,23 @@ function plotPt(p, axes, x, y) {
 }
 
 function plotConnector(p, axes, pt1, pt2) {
+    /* Draws a line designed to connect two points on p. */
     var coords1 = [0, 0];
     var coords2 = [0, 0];
     var l = p.line(coords1[0], coords1[1], coords2[0], coords2[1]);
     var update = function() {
+        /* Updates endpoints and redraws the line. */
         if (typeof pt1 !== 'undefined' && pt1 !== null) coords1 = axes.pxCoords(pt1.graphCoords()[0], pt1.graphCoords()[1]);
         if (typeof pt2 !== 'undefined' && pt2 !== null) coords2 = axes.pxCoords(pt2.graphCoords()[0], pt2.graphCoords()[1]);
         l.attr({x1: coords1[0], y1: coords1[1], x2: coords2[0], y2: coords2[1]});
     };
     var setPt1 = function(pt) {
+        /* Sets one endpoint. */
         pt1 = pt;
         update();
     }
     var setPt2 = function(pt) {
+        /* Sets one endpoint. */
         pt2 = pt;
         update();
     }
