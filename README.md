@@ -1,5 +1,5 @@
 # Snap Math
-Extension of Snap.svg for easy construction of simple graphs. Provides constructors for axes, points, and connectors. All objects are based on Snap.svg elements and support all Snap.svg features including dragging, animation, and attribute modification.
+Extension of Snap.svg for easy construction of simple graphs. Provides constructors for axes, points, and connectors. All objects are based on Snap.svg elements and support Snap.svg features, including dragging, animation, and setting of attributes.
 
 ## Example:
 
