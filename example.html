@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <title>Fun with SnapSVG</title>
+    </head>
+    <body style="text-align: center; padding-top: 50px; ">
+        <script src="snap.svg-min.js"></script>
+        <script src="snap-math.js"></script>
+        <script>
+var p = Snap(500, 500);
+var a = plotAxes(p, null, null, null, null, true);
+var c = plotConnector(p, a);
+c.el.attr({strokeWidth: 3, stroke: '#000', strokeDasharray: '1,5'});
+var pt = plotPt(p, a, 4, 5);
+pt.setR(10);
+pt.el.attr({fill: '#bada56', strokeWidth: 3, stroke: '#000', cursor: 'pointer'})
+    .drag()
+    .drag(function() {
+        c.update();
+    }, null, function() {
+        pt.graphSnap(null, null, function() {
+            pt.animZoom();
+            c.update();
+        });
+    })
+    .mouseover(function() {
+        this.attr({stroke: '#666'});
+    })
+    .mouseout(function() {
+        this.attr({stroke: '#000'});
+    });
+pt.animZoom();
+c.setPt1(pt);
+var o = plotPt(p, a, 0, 0);
+o.el.drag()
+    .drag(function() {
+        c.update();
+    }, null, function() {
+        o.graphSnap(null, null, function() {
+            o.animZoom();
+            c.update();
+        })
+    });
+c.setPt2(o);
+        </script>
+    </body>
+</html>
