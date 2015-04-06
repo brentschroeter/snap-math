@@ -98,22 +98,103 @@ function plotConnector(p, axes, pt1, pt2) {
     var coords1 = [0, 0];
     var coords2 = [0, 0];
     var l = p.line(coords1[0], coords1[1], coords2[0], coords2[1]);
-    var update = function() {
+    var draw = function(smooth) {
         /* Updates endpoints and redraws the line. */
         if (typeof pt1 !== 'undefined' && pt1 !== null) coords1 = axes.pxCoords(pt1.graphCoords()[0], pt1.graphCoords()[1]);
         if (typeof pt2 !== 'undefined' && pt2 !== null) coords2 = axes.pxCoords(pt2.graphCoords()[0], pt2.graphCoords()[1]);
-        l.attr({x1: coords1[0], y1: coords1[1], x2: coords2[0], y2: coords2[1]});
+        if (typeof smooth === 'boolean' && smooth) {
+            l.animate({x1: coords1[0], y1: coords1[1], x2: coords2[0], y2: coords2[1]}, 100);
+        } else {
+            l.attr({x1: coords1[0], y1: coords1[1], x2: coords2[0], y2: coords2[1]});
+        }
     };
     var setPt1 = function(pt) {
         /* Sets one endpoint. */
+        var smooth = (typeof pt1 !== 'undefined');
         pt1 = pt;
-        update();
+        draw(smooth);
     }
     var setPt2 = function(pt) {
         /* Sets one endpoint. */
+        var smooth = (typeof pt2 !== 'undefined');
         pt2 = pt;
-        update();
+        draw(smooth);
     }
-    update();
-    return {el: l, update: update, setPt1: setPt1, setPt2: setPt2};
+    draw();
+    return {el: l, draw: draw, setPt1: setPt1, setPt2: setPt2};
+}
+
+function plotPie(p, n, pad, blankStroke) {
+    /* Draws a pie chart with n rings on p. */
+    if (typeof pad === 'undefined') pad = 0;
+    if (typeof blankStroke === 'undefined') blankStroke = '#eee';
+    var w = p.node.offsetWidth;
+    var h = p.node.offsetHeight;
+    var r = Math.floor(Math.min(w, h) / 2);
+    var gap = 5;
+    var ringW = Math.floor((r - n * gap) / (n + 1));
+    var pArray = new Array(n);
+    var elArray = new Array();
+    for (var i = 0; i < pArray.length; ++i) {
+        pArray[i] = [];
+        p.circle(r, r, r - ringW / 2 - (ringW + gap) * i)
+            .attr({strokeWidth: ringW, stroke: blankStroke, fill: 'transparent'});
+    }
+    var draw = function() {
+        /* Renders the chart based on the proportions stored in pArray. */
+        for (var i = 0; i < elArray.length; ++i) {
+            elArray[i].remove();
+        }
+        elArray = new Array();
+        for (var i = 0; i < pArray.length; ++i) {
+            var ringR = r - ringW / 2 - (ringW + gap) * i;
+            var sum = 0.25;
+            for (var j = 0; j < pArray[i].length; ++j) {
+                var stroke = pArray[i][j][0];
+                var prop = pArray[i][j][1];
+                if (prop < 1.0) {
+                    var startRad = sum * 2 * Math.PI;
+                    sum += prop;
+                    var endRad = sum * 2 * Math.PI;
+                    var startX = r + ringR * Math.cos(startRad);
+                    var startY = r + ringR * Math.sin(startRad);
+                    var endX = r + ringR * Math.cos(endRad);
+                    var endY = r + ringR * Math.sin(endRad);
+                    var largeArc = prop > 0.5 ? 1 : 0;
+                    var pathStr = 'M' + startX + ',' + startY + ' A' + ringR + ',' + ringR + ' 0 ' + largeArc + ',1 ' + endX + ',' + endY;
+                    elArray.push(p.path(pathStr)
+                        .attr({stroke: stroke, fill: 'transparent', strokeWidth: ringW - pad * 2}));
+                } else {
+                    elArray.push(p.circle(r, r, ringR)
+                        .attr({stroke: stroke, fill: 'transparent', strokeWidth: ringW - pad * 2}));
+                }
+            }
+        }
+    };
+    var setProps = function(props, ringI, anim, callback) {
+        /* Sets proportions to be displayed in a ring. Parameter props is a nested array in the format [[color, proportion], ..., [color, proportion]]. When parameter anim is set to true the values of pArray will be changed gradually over 1000 ms. */
+        if (typeof ringI === 'undefined') ringI = 0;
+        if (typeof anim === 'undefined') anim = true;
+        if (anim) {
+            if (typeof callback !== 'function') callback = null;
+            var oldProps = pArray[ringI].slice(0);
+            Snap.animate(0.0, 1.0, function(n) {
+                var tmpProps = new Array(props.length);
+                for (var i = 0; i < tmpProps.length; ++i) {
+                    var oldP;
+                    if (i >= oldProps.length) {
+                        oldP = 0.0;
+                    } else {
+                        oldP = oldProps[i][1];
+                    }
+                    tmpProps[i] = [props[i][0], oldP + (props[i][1] - oldP) * n];
+                }
+                pArray[ringI] = tmpProps;
+                draw();
+            }, 1000, mina.easeinout, callback);
+        } else {
+            pArray[ringI] = props;
+        }
+    };
+    return {setProps: setProps, draw: draw};
 }

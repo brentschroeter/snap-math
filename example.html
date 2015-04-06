@@ -15,11 +15,11 @@ pt.setR(10);
 pt.el.attr({fill: '#bada56', strokeWidth: 3, stroke: '#000', cursor: 'pointer'})
     .drag()
     .drag(function() {
-        c.update();
+        c.draw();
     }, null, function() {
         pt.graphSnap(null, null, function() {
             pt.animZoom();
-            c.update();
+            c.draw(true);
         });
     })
     .mouseover(function() {
@@ -31,16 +31,22 @@ pt.el.attr({fill: '#bada56', strokeWidth: 3, stroke: '#000', cursor: 'pointer'})
 pt.animZoom();
 c.setPt1(pt);
 var o = plotPt(p, a, 0, 0);
-o.el.drag()
+o.el.attr({cursor: 'pointer'})
+    .drag()
     .drag(function() {
-        c.update();
+        c.draw();
     }, null, function() {
         o.graphSnap(null, null, function() {
             o.animZoom();
-            c.update();
+            c.draw(true);
         })
     });
 c.setPt2(o);
+
+var p2 = Snap(300, 300);
+var pie = plotPie(p2, 2);
+pie.setProps([['#c33', 0.6], ['#3a3', 0.3]], 0);
+pie.setProps([['#c33', 0.5], ['#3a3', 0.2]], 1);
         </script>
     </body>
 </html>
