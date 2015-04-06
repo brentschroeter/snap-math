@@ -97,8 +97,9 @@ function plotPt(p, axes, x, y) {
         var b = pt.getBBox();
         return axes.graphCoords(b.cx, b.cy);
     };
-    var graphSnap = function(x, y, complete) {
+    var graphSnap = function(x, y, dur, complete) {
         /* Snaps the point to the nearest integer point or to the given graph coordinates. */
+        if (typeof dur === 'undefined' || dur === null) dur = 100;
         var b = pt.getBBox();
         if (typeof x === 'undefined' || x === null) x = Math.round(axes.graphCoords(b.cx, b.cy)[0]);
         if (typeof y === 'undefined' || y === null) y = Math.round(axes.graphCoords(b.cx, b.cy)[1]);
@@ -112,7 +113,7 @@ function plotPt(p, axes, x, y) {
             for (var i = 0; i < moveListeners.length; ++i) {
                 moveListeners[i]();
             }
-        }, 100, null, complete);
+        }, dur, null, complete);
     }
     return {el: pt, onmove: onmove, unmove: unmove, graphCoords: graphCoords, animZoom: animZoom, graphSnap: graphSnap, setR: setR};
 }
