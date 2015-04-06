@@ -20,7 +20,7 @@ function plotDraggablePt(p, a, x, y) {
     pt.el.attr({fill: '#bada56', strokeWidth: 3, stroke: '#000', cursor: 'pointer'})
         .drag()
         .drag(null, null, function() {
-            pt.graphSnap(null, null, function() {
+            pt.graphSnap(null, null, null, function() {
                 pt.animZoom();
             });
         })
