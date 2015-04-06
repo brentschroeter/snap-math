@@ -88,8 +88,8 @@ function plotPt(p, axes, x, y) {
     };
     var animZoom = function() {
         /* Causes a zoom in-zoom out animation of the point. */
-        pt.animate({r: r * 1.5}, 150, mina.easeinout, function() {
-            this.animate({r: r}, 150);
+        pt.animate({r: r * 1.25}, 150, mina.easeinout, function() {
+            this.animate({r: r}, 150, mina.easeinout);
         });
     };
     var graphCoords = function() {
