@@ -10,14 +10,12 @@ var p = Snap(500, 500);
 var a = plotAxes(p, -10, 10, -10, 10, true);
 var c1 = plotConnector(p, a);
 var c2 = plotConnector(p, a);
+c2.el.attr({strokeWidth: 1, strokeDasharray: '3 3'});
 var o = plotPt(p, a, 0, 0);
 o.setR(0);
-Snap(c1.el, c2.el).attr({strokeWidth: 3, stroke: '#000', strokeDasharray: '1,5'});
-c2.el.attr({strokeWidth: 3, stroke: '#000', strokeDasharray: '1,5'});
 function plotDraggablePt(p, a, x, y) {
     var pt = plotPt(p, a, x, y);
-    pt.setR(10);
-    pt.el.attr({fill: '#bada56', strokeWidth: 3, stroke: '#000', cursor: 'pointer'})
+    pt.el.attr({cursor: 'pointer'})
         .drag()
         .drag(null, null, function() {
             pt.graphSnap(null, null, null, function() {
@@ -30,7 +28,6 @@ function plotDraggablePt(p, a, x, y) {
         .mouseout(function() {
             this.attr({stroke: '#000'});
         });
-    pt.animZoom();
     return pt;
 }
 var pt1 = plotDraggablePt(p, a, 4, 5);

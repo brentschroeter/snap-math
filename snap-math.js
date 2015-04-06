@@ -64,7 +64,7 @@ function plotPt(p, axes, x, y) {
     var coords = axes.pxCoords(x, y);
     var moveListeners = new Array();
     var pt = p.circle(coords[0], coords[1], 5)
-        .attr({strokeWidth: 0, fill: '#33f'})
+        .attr({strokeWidth: 2, fill: '#bd5', stroke: '#000'})
         .drag(function() {
             for (var i = 0; i < moveListeners.length; ++i) {
                 moveListeners[i]();
@@ -123,6 +123,7 @@ function plotConnector(p, axes, pt1, pt2) {
     var coords1 = [0, 0];
     var coords2 = [0, 0];
     var l = p.line(coords1[0], coords1[1], coords2[0], coords2[1]);
+    l.attr({strokeWidth: 2, stroke: '#000'});
     var draw = function(smooth) {
         /* Updates endpoints and redraws the line. */
         if (typeof pt1 !== 'undefined' && pt1 !== null) coords1 = axes.pxCoords(pt1.graphCoords()[0], pt1.graphCoords()[1]);
@@ -167,8 +168,8 @@ function plotPie(p, n, pad, blankStroke) {
     var w = p.node.offsetWidth;
     var h = p.node.offsetHeight;
     var r = Math.floor(Math.min(w, h) / 2);
-    var gap = 5;
-    var ringW = Math.floor((r - n * gap) / (n + 1));
+    var gap = r / n / 6;
+    var ringW = Math.floor((r - n * gap) / (n + 2));
     var pArray = new Array(n);
     var elArray = new Array();
     for (var i = 0; i < pArray.length; ++i) {
