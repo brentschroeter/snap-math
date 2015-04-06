@@ -3,11 +3,11 @@
 
 function plotAxes(p, xMin, xMax, yMin, yMax, grid) {
     /* Draws a set of 2d axes on p. */
-    if (typeof xMin === 'undefined' || xMin === null) xMin = -10;
-    if (typeof xMax === 'undefined' || xMax === null) xMax = 10;
-    if (typeof yMin === 'undefined' || yMin === null) yMin = -10;
-    if (typeof yMax === 'undefined' || yMax === null) yMax = 10;
-    if (typeof grid === 'undefined' || grid === null) grid = false;
+    if (typeof xMin === 'undefined') xMin = -10;
+    if (typeof xMax === 'undefined') xMax = 10;
+    if (typeof yMin === 'undefined') yMin = -10;
+    if (typeof yMax === 'undefined') yMax = 10;
+    if (typeof grid === 'undefined') grid = false;
     var d = xMax - xMin;
     var r = yMax - yMin;
     var w = p.node.offsetWidth;
@@ -62,8 +62,25 @@ function plotPt(p, axes, x, y) {
     /* Draws a circular point on p. */
     var r = 5;
     var coords = axes.pxCoords(x, y);
+    var moveListeners = new Array();
     var pt = p.circle(coords[0], coords[1], 5)
-        .attr({strokeWidth: 0, fill: '#33f'});
+        .attr({strokeWidth: 0, fill: '#33f'})
+        .drag(function() {
+            for (var i = 0; i < moveListeners.length; ++i) {
+                moveListeners[i]();
+            }
+        });
+    var onmove = function(f) {
+        moveListeners.push(f);
+    };
+    var unmove = function(f) {
+        for (var i = 0; i < moveListeners.length; ++i) {
+            if (moveListeners[i] == c) {
+                moveListeners.splice(i, 1);
+                break;
+            }
+        }
+    };
     var setR = function(newR) {
         /* Sets the default radius of the point. Use instead of el.attr({r: }), especially if you plan to call animZoom(). */
         r = newR;
@@ -88,9 +105,16 @@ function plotPt(p, axes, x, y) {
         var coords = axes.pxCoords(x, y);
         var tx = coords[0] - b.cx;
         var ty = coords[1] - b.cy;
-        pt.animate({transform: pt.matrix.translate(tx, ty)}, 100, null, complete);
+        var initMatrix = pt.matrix.clone();
+        //pt.animate({transform: pt.matrix.translate(tx, ty)}, 100);
+        Snap.animate([0.0, 0.0], [tx, ty], function(t) {
+            pt.transform(initMatrix.clone().translate(t[0], t[1]));
+            for (var i = 0; i < moveListeners.length; ++i) {
+                moveListeners[i]();
+            }
+        }, 100, null, complete);
     }
-    return {el: pt, graphCoords: graphCoords, animZoom: animZoom, graphSnap: graphSnap, setR: setR};
+    return {el: pt, onmove: onmove, unmove: unmove, graphCoords: graphCoords, animZoom: animZoom, graphSnap: graphSnap, setR: setR};
 }
 
 function plotConnector(p, axes, pt1, pt2) {
@@ -110,17 +134,28 @@ function plotConnector(p, axes, pt1, pt2) {
     };
     var setPt1 = function(pt) {
         /* Sets one endpoint. */
-        var smooth = (typeof pt1 !== 'undefined');
+        var changePt = typeof pt1 !== 'undefined';
+        if (changePt) {
+            pt1.unmove(draw);
+        }
         pt1 = pt;
-        draw(smooth);
+        pt1.onmove(draw);
+        if (typeof pt2 !== 'undefined') {
+            draw(changePt);
+        }
     }
     var setPt2 = function(pt) {
         /* Sets one endpoint. */
-        var smooth = (typeof pt2 !== 'undefined');
+        var changePt = typeof pt2 !== 'undefined';
+        if (changePt) {
+            pt2.unmove(draw);
+        }
         pt2 = pt;
-        draw(smooth);
+        pt2.onmove(draw);
+        if (typeof pt1 !== 'undefined') {
+            draw(changePt);
+        }
     }
-    draw();
     return {el: l, draw: draw, setPt1: setPt1, setPt2: setPt2};
 }
 
