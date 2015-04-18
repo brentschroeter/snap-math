@@ -17,21 +17,25 @@ function plotAxes(p, xMin, xMax, yMin, yMax, grid) {
         return [(x - xMin) * w / d, (yMax - y) * h / r];
     }
     var o = pxCoords(0, 0);
+    var xIncr = Math.pow(10, ('' + d).length - 2);
     for (var n = xMin + 1; n < xMax; ++n) {
         var x = pxCoords(n, 0)[0];
         if (grid) p.line(x, 0, x, h).attr({stroke: '#eee', strokeWidth: 1});
         p.line(x, o[1], x, o[1] + 5).attr({stroke: '#000', strokeWidth: 1});
     }
-    for (var n = yMin + 1; n < yMax; ++n) {
+    var yIncr = Math.pow(10, ('' + r).length - 2);
+    for (var n = yMin + yIncr; n < yMax; n += yIncr) {
         var y = pxCoords(0, n)[1];
         if (grid) p.line(0, y, w, y).attr({stroke: '#eee', strokeWidth: 1});
         p.line(o[0] - 5, y, o[0], y).attr({stroke: '#000', strokeWidth: 1});
     }
-    for (var n = yMin - yMin % 5 + 5; n <= yMax - 5; n += 5) {
+    var yK = Math.ceil(50 / (h / (r / yIncr)));
+    for (var n = yMin - yMin % (yIncr * yK) + (yIncr * yK); n <= yMax - (yIncr * yK); n += (yIncr * yK)) {
         var y = pxCoords(0, n)[1];
         p.text(o[0] - 5 - (10 * ('' + n).length), y + 6, n).attr({fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif', fontSize: '15px'});
     }
-    for (var n = xMin - xMin % 5 + 5; n <= xMax - 5; n += 5) {
+    var xK = Math.ceil(50 / (w / (d / xIncr)));
+    for (var n = xMin - xMin % (xIncr * xK) + (xIncr * xK); n <= xMax - (xIncr * xK); n += xIncr * xK) {
         var x = pxCoords(n, 0)[0];
         p.text(x - (5 * ('' + n).length), o[1] + 20, n).attr({fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif', fontSize: '15px'});
     }
